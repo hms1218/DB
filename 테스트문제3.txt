@@ -1,0 +1,22 @@
+1. no가 1000인 데이터의 price를 20 증가시키세요
+update product
+set price = price + 20
+where no = 1000
+
+2. name이 세탁기인 데이터를 모두 삭제하세요
+delete from product
+where name = '세탁기'
+
+3. product 테이블에서 다음과 같이 데이터를 조회
+	NAME	PRICE
+1	컴퓨터	120
+2	냉장고	200
+3	에어컨	300
+4	오디오	20
+select name,price from product
+
+ORDER BY (정렬)
+- 질의 결과에 반환되는 행들을 특정 기준으로 정렬하고자 할 때 사용
+- SELECT절의 가장 마지막에 기술
+- ASC : 오름차순 (생략가능 : 기본값)
+- DESC : 내림차순 (생략불가능)

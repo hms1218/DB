@@ -1,0 +1,67 @@
+USER   
+----------
+ID(PK) VARCHAR2(100)
+----------
+PW VARCHAR2(100)
+NAME VARCHAR2(50)   
+ADDRESS VARCHAR2(100)
+EMAIL VARCHAR2(50)
+BIRTH DATE
+
+PRODUCT
+---------------
+PRODUCT_NUM(PK) NUMBER
+---------------
+PRODUCT_NAME VARCHAR2(300)
+PRODUCT_PRICE NUMBER
+PRODUCT_COUNT NUMBER
+
+ORDER      
+------------------
+ORDER_NUM(PK) NUMBER
+------------------
+ORDER_DATE DATE
+ID(FK) VARCHAR2(100) 참조하려고 하는 컬럼의 타입과 크기가 일치해야 한다.   
+PRODUCT_NUM(FK) NUMBER
+
+1.요구사항
+- 꽃 테이블과 화분테이블 2개가 필요하고, 꽃을 구매할 때 화분 테이블도 같이 구매한다.
+- 꽃은 꽃 이름과 색깔, 가격이 존재한다.
+- 화분은 제품번호, 화분색깔, 화분모양, 꽃 이름이 존재한다.
+
+꽃		화분
+--------------------------------------
+꽃 이름(PK)	제품번호(PK)
+--------------------------------------
+색깔		화분색깔
+가격		화분모양
+		꽃 이름(FK)
+
+FLOWER
+--------
+FLOWER_NAME(PK) VARCHAR2(100)
+--------
+FLOWER_COLOR VARCHAR2(50)
+FLOWER_PRICE NUMBER
+
+JAR
+--------
+JAR_NUM(PK) NUMBER
+--------
+JAR_COLOR VARCHAR2(50)
+JAR_SHAPE VARCHAR2(50)
+FLOWER_NAME(FK)	VARCHAR2(100)
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+EMPLOYEE_ID : 사번
+FIRST_NAME : 이름
+LAST_NAME : 성
+EMAIL : 이메일
+PHONE_NUMBER : 전화번호
+HIRE_DATE : 입사날짜
+JOB_ID : 직종
+SALARY : 급여
+COMMISSION_PCT : 보너스율
+MANAGER_ID : 상사의 사원번호
+DEPARTMENT_ID : 부서번호
