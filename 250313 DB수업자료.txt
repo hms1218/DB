@@ -65,3 +65,18 @@ SALARY : 급여
 COMMISSION_PCT : 보너스율
 MANAGER_ID : 상사의 사원번호
 DEPARTMENT_ID : 부서번호
+
+SELECT 컬럼 FROM 테이블
+WHERE 조건식
+GROUP BY 컬럼명
+HAVING 조건식
+ORDER BY 컬럼명 ASC 또는 DESC
+
+UPDATE 테이블 SET 컬럼 = 새로운값
+WHERE 조건식
+
+DELETE FROM 테이블
+WHERE 조건식
+
+INSERT INTO 테이블명(컬럼명1,컬럼명2...) 
+VALUES(값1,값2...) DEFAULT
