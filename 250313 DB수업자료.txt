@@ -66,6 +66,8 @@ COMMISSION_PCT : 보너스율
 MANAGER_ID : 상사의 사원번호
 DEPARTMENT_ID : 부서번호
 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
 SELECT 컬럼 FROM 테이블
 WHERE 조건식
 GROUP BY 컬럼명
@@ -80,3 +82,24 @@ WHERE 조건식
 
 INSERT INTO 테이블명(컬럼명1,컬럼명2...) 
 VALUES(값1,값2...) DEFAULT
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+SYSDATE : 현재 날짜
+RANK() OVER(ORDER BY 컬럼명) : 순위
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+SELECT
+    출력컬럼
+    CASE
+        WHEN 조건 THEN 결과
+        WHEN 조건 THEN 결과
+        ELSE 결과
+    END (AS 별칭)
+FROM 테이블
+WHERE 조건  -> WHERE에서도 CASE 사용가능
+
+DECLARE -> (선언)
+    변수 := 값;
+BEGIN
+    출력
+END

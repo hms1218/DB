@@ -138,7 +138,7 @@ SELECT FIRST_NAME||'의 급여는 '||SALARY||'이다' "급여" FROM EMPLOYEES;
 
 -- 별칭(ALIAS)
 -- SELECT절
-	-- AS 별칭
+	-- AS 별칭("두 단어 이상의 별칭") 묶어줘야함.
 	-- 컬럼명 뒤에 한칸 띄우고 작성
 
 -- FROM절
@@ -157,6 +157,9 @@ SELECT COUNT(SALARY) AS 개수,
 	   AVG(SALARY) AS 평균
 FROM EMPLOYEES;
 
+-- JOIN
+
+-- 1.INNER JOIN
 -- 두 개 이상의 테이블에서 각각의 컬럼을 조회하려고 할 때
 -- 어떤 테이블에서 온 컬럼인지 확실하게 해야할 때가 있다.
 
