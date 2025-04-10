@@ -1,5 +1,5 @@
 CREATE TABLE PRODUCT(
-	"NO" NUMBER PRIMARY KEY,
+	NO NUMBER PRIMARY KEY,
 	NAME VARCHAR2(100) NOT NULL,
 	PRICE NUMBER,
 	P_DATE DATE
@@ -53,14 +53,261 @@ CREATE TABLE "ORDER"(
 	CONSTRAINT PRODUCT_FK FOREIGN KEY(PRODUCT_NUM) REFERENCES PRODUCT(PRODUCT_NUM);
 )
 
+--사원테이블에서 first_name(이름),job_id(직종),salary(급여)를 조회해보자!
+SELECT FIRST_NAME,JOB_ID,SALARY FROM EMPLOYEES;
 
+--사원테이블에서 사번, 이름,입사일,급여를 검색하시오
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE, SALARY FROM EMPLOYEES;
 
+--사원테이블에서 사번, 이름, 직종, 급여, 보너스, 실제의 보너스 금액을 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY, COMMISSION_PCT, SALARY*COMMISSION_PCT SC FROM EMPLOYEES;
 
+--사원테이블에서 급여가 10000이상인 사원들의 정보를 사번, 이름, 급여 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY FROM EMPLOYEES
+WHERE SALARY >= 10000;
 
+--사원테이블에서 이름이 Michael인 사원의 사번, 이름을 조회
+SELECT EMPLOYEE_ID, FIRST_NAME FROM EMPLOYEES
+WHERE FIRST_NAME = 'Michael'; -- 반드시 ''홑따옴표 사용해야함 ==아니고 =로 비교
 
+--사원테이블에서 직종이 IT_PROG인 사원들의 정보를 사번, 이름, 직종, 급여 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY FROM EMPLOYEES
+WHERE JOB_ID = 'IT_PROG';
 
+--사원테이블에서 입사일이 05년9월21일인 사원의 정보를 사번, 이름, 입사일 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE FROM EMPLOYEES
+WHERE HIRE_DATE = '2005-09-21';
 
+--사원테이블에서 06년도에 입사한 사원들의 정보를 사번, 이름, 직종, 입사일 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE FROM EMPLOYEES
+WHERE HIRE_DATE >= '2006-01-01' AND HIRE_DATE <= '2006-12-31';
 
+--사원테이블에서 급여가 5000이상이고 6000이하인 사원의 정보를 사번, 이름, 급여순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY FROM EMPLOYEES
+--WHERE SALARY >= 5000 AND SALARY <= 6000;
+WHERE SALARY BETWEEN 5000 AND 6000;
+
+--직종이 SA_MAN , IT_PROG인 사원들의 정보를 이름, 직종순으로 출력
+SELECT FIRST_NAME, JOB_ID FROM EMPLOYEES
+--WHERE JOB_ID = 'SA_MAN' OR JOB_ID = 'IT_PROG';
+WHERE JOB_ID IN ('SA_MAN','JOB_ID');
+
+--급여가 2200, 3200, 5000을 받는 사원들의 정보를 이름, 직종, 급여순으로 출력하되 in연산자를 사용하시오
+SELECT FIRST_NAME, JOB_ID, SALARY FROM EMPLOYEES e 
+WHERE SALARY NOT IN (2200,3300,5000);
+-- NOT IN
+
+--LIKE연산자
+-- % : 모든값
+-- _ : 하나의 값
+-- EX)M% : M으로 시작하는 모든값
+-- EX)%A : A로 끝나는 모든값
+-- EX)%A% : 어디든 A를 포함하고 있는 값
+-- EX)%M%I% : M과 I를 포함하고 있는 데이터
+-- EX)M____ : M으로 시작하는 5글자
+
+SELECT TRUNC(1234.567,1),TRUNC(1234.567,-1),TRUNC(1234.567) FROM DUAL;
+
+--각 부서별 급여의 평균과 총 합을 출력
+SELECT DEPARTMENT_ID, COUNT(*), AVG(SALARY), SUM(SALARY) FROM EMPLOYEES 
+GROUP BY DEPARTMENT_ID;
+
+--부서별, 직종별로 그룹을 나눠서 인원수를 출력 단, 부서번호가 낮은순으로 정렬하시오.
+SELECT DEPARTMENT_ID, JOB_ID, COUNT(*) FROM EMPLOYEES 
+GROUP BY DEPARTMENT_ID, JOB_ID
+ORDER BY DEPARTMENT_ID;
+
+--각 부서의 급여의 최대값, 최소값, 인원수를 출력하자
+--단, 급여의 최대값이 8000이상인 결과만 보여줄 것.
+SELECT DEPARTMENT_ID, MAX(SALARY), MIN(SALARY), COUNT(*) FROM EMPLOYEES
+GROUP BY DEPARTMENT_ID
+HAVING MAX(SALARY) >= 8000;
+     
+--사원테이블에서 이름이 'Michael'이고, 직종이 'MK_MAN'인 사원의 급여보다
+--많이 받는 사원들의 정보를 사번, 이름, 직종, 급여 순으로 출력
+
+--1)이름이 Michael이고, 직종이 'MK_MAN'인 사원의 급여 구하기
+SELECT SALARY FROM EMPLOYEES
+WHERE FIRST_NAME = 'Michael' AND JOB_ID = 'MK_MAN'; -- 급여 : 13000
+
+--2)급여 13000보다 많이 받는 사원들의 정보를 사번, 이름, 직종, 급여 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY FROM EMPLOYEES
+WHERE SALARY > 
+(SELECT SALARY FROM EMPLOYEES
+WHERE FIRST_NAME = 'Michael' AND JOB_ID = 'MK_MAN');
+
+--사번이 150번인 사원의 급여와 같은 급여를 받는 사원들의 정보를 사번, 이름, 급여 순으로 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY FROM EMPLOYEES
+WHERE SALARY = 
+(SELECT SALARY FROM EMPLOYEES 
+WHERE EMPLOYEE_ID = 150);
+
+SELECT SALARY FROM EMPLOYEES 
+WHERE EMPLOYEE_ID = 150;
+
+--월급이 회사의 평균월급 이상인 사람들의 이름과 월급을 조회
+SELECT AVG(SALARY) FROM EMPLOYEES; -- 6643.8878
+
+SELECT FIRST_NAME, SALARY FROM EMPLOYEES
+WHERE SALARY >= (SELECT AVG(SALARY) FROM EMPLOYEES);
+
+--사번이 111번인 사원의 직종과 같고 사번이 159번인 사원의 급여보다 많이 받는 사원들의 정보를 사번, 이름, 직종, 급여 순으로 출력
+SELECT JOB_ID FROM EMPLOYEES
+WHERE EMPLOYEE_ID = 111; --FI_ACCOUNT
+
+SELECT SALARY FROM EMPLOYEES e 
+WHERE EMPLOYEE_ID = 159; -- 8000
+
+SELECT EMPLOYEE_ID, FIRST_NAME, JOB_ID, SALARY FROM EMPLOYEES
+WHERE JOB_ID = 
+(SELECT JOB_ID FROM EMPLOYEES
+WHERE EMPLOYEE_ID = 111) AND 
+SALARY > (SELECT SALARY FROM EMPLOYEES e 
+WHERE EMPLOYEE_ID = 159);
+
+--1) NO : 제품번호, 숫자, 기본키
+--2) NAME : 제품명, 문자열 최대 100바이트, 필수
+--3) PRICE : 제품가격, 숫자
+--4) P_DATE : 생산일자, 날짜
+
+CREATE TABLE PRODUCT(
+	"NO" NUMBER PRIMARY KEY,
+	NAME VARCAHR2(100) NOT NULL,
+	PRICE NUMBER,
+	P_DATE DATE
+)
+
+-- CD > 
+-- TITLE (PK)
+-- PRICE
+-- GENRE
+-- TRACKLIST
+-- ARTIST_NAME FK(ARTIST->NAME)
+
+-- ARTIST >
+-- NAME (PK)
+-- COUNTRY
+-- DEBUTYEAR
+
+-- TRACK >
+-- TITLE (PK)
+-- RUNNINGTIME
+-- CD_TITLE FK(CD -> TITLE)
+
+CREATE TABLE ARTIST(
+	NAME VARCHAR2(100) PRIMARY KEY,
+	COUNTRY VARCHAR2(100),
+	DEBUTYEAR DATE
+)
+
+CREATE TABLE CD(
+	TITLE VARCHAR2(100) PRIMARY KEY,
+	PRICE NUMBER,
+	GENRE VARCHAR2(100),
+	TRACKLIST VARCHAR2(100),
+	ARTIST_NAME VARCHAR2 FOREIGN KEY(ARTIST_NAME) REFERENCES ARTIST(NAME)
+)
+
+CREATE TABLE TRACK(
+	TITLE VARCHAR2(100) PRIMARY KEY,
+	RUNNINGTIME NUMBER,
+	CD_TITLE VARCHAR2(100) FOREIGN KEY(CD_TITLE) REFERENCES CD(TITLE)
+)
+
+--회사는 네 개의 부서를 운영한다. 부서는 (부서번호, 부서이름)을 저장한다.
+--부서는 1명 이상의 직원(직원번호, 직원이름, 직책)을 두고 있다. 각 직원은 하나의 부서에 소속된다.
+--직원은 부양가족(이름, 나이)이 있을 수 있다.
+--각 직원은 근무했던 부서에 대한 근무기록(기간)이 있다.
+
+-- 부서 테이블
+-- 부서번호(PK)
+-- 부서이름
+
+-- 직원 테이블
+-- 직원번호(PK)
+-- 직원이름
+-- 직책
+-- 부서번호(FK) -> 부서
+
+-- 부양가족 테이블
+-- 이름
+-- 나이
+-- 직원번호(FK) -> 직원
+
+-- 근무기록 테이블
+-- 기간
+-- 직원번호(FK) -> 직원
+
+--10번 및 30번 부서에 속하는 모든 사원 중 급여가 1500을 넘는 사원의사원번호,이름 및 급여를 조회하세요
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY FROM EMPLOYEES e 
+WHERE DEPARTMENT_ID IN (10,30) AND SALARY > 1500;
+
+--관리자가 없는 모든 사원의 이름 및 직종을 출력하세요
+SELECT FIRST_NAME, JOB_ID FROM EMPLOYEES
+WHERE MANAGER_ID IS NULL;
+
+--직업이 IT_PROG 또는 SA_MAN 이면서 급여가 1000,3000,5000이 아닌 모든 사원들의 이름, 직종 및 급여를 조회하세요
+SELECT FIRST_NAME, JOB_ID, SALARY FROM EMPLOYEES
+WHERE JOB_ID IN ('IT_PROG','SA_MAN') AND SALARY NOT IN(1000,3000,5000);
+
+--1) 모든 칼럼의 타입에 맞는 데이터를 삽입하고, 모든 칼럼에 널 값이 없도록 작성하시오.
+--
+--2) NO 칼럼의 데이터는 오라클 시퀀스를 활용하여 입력하시오. 시퀀스의 이름이나 속성은 알아서 처리하시오.
+--
+--3) P_DATE 칼럼의 데이터 중 하나 이상은 반드시 현재 날짜를 호출하는 오라클 함수를 사용하시오.
+
+INSERT INTO PRODUCT("NO",NAME,PRICE,P_DATE) VALUES(1000,'컴퓨터',100,SYSDATE);
+--NO 가 1000 인 데이터의 PRICE 를 20만큼 증가시키시오.
+UPDATE PRODUCT
+SET PRICE = PRICE+20
+WHERE "NO" = 1000;
+
+SELECT * FROM PRODUCT
+
+--NAME 이 '세탁기' 인 데이터를 모두 삭제하시오.
+DELETE FROM PRODUCT
+WHERE NAME = '세탁기';
+
+--모든 레코드와 모든 칼럼을 높은 PRICE가 먼저 나타나도록 정렬하여 조회하시오.
+SELECT * FROM PRODUCT
+ORDER BY PRICE DESC;
+
+--부서번호가 50번인 사원들의 이름을 출력하되 이름중 'el'을 모두 '**'로 대체하여 출력하시오
+SELECT REPLACE(FIRST_NAME, 'el', '**') FROM EMPLOYEES e 
+WHERE DEPARTMENT_ID = 50;
+
+-- 이름이 6글자 이상인 사원의 사번과 이름, 급여를 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, SALARY FROM EMPLOYEES
+WHERE LENGTH(FIRST_NAME)>=6;
+
+--사원테이블에서 사원번호와 사원번호가 홀수이면 1, 짝수이면 0을 출력하시오.
+SELECT EMPLOYEE_ID, MOD(EMPLOYEE_ID,2)FROM EMPLOYEES;
+
+--사원번호가 짝수인 사람들의 사원 번호와 이름을 출력하시오.
+SELECT EMPLOYEE_ID, FIRST_NAME FROM EMPLOYEES
+WHERE MOD(EMPLOYEE_ID,2)=0;
+
+--사원테이블에서 이름, 급여, 급여 1000당 0의 개수를 채워 조회하세요
+SELECT FIRST_NAME, SALARY, RPAD('X',ROUND(SALARY/1000),'X') FROM EMPLOYEES;
+
+--사원테이블에서 모든 사원의 입사일로부터 6개월 뒤의 날짜를 이름, 입사일, 6개월뒤 날짜 순으로 출력
+SELECT FIRST_NAME, HIRE_DATE, ADD_MONTHS(HIRE_DATE,6) FROM EMPLOYEES;
+
+--사번이 120번인 사원이 입사후 3년 6개월째 되는날 진급예정이다. 진급 예정 날짜를 구하시오.
+SELECT ADD_MONTHS(HIRE_DATE,42) E FROM EMPLOYEES
+WHERE EMPLOYEE_ID = 120;
+
+--사원들의 이름, 입사일, 입사후 오늘까지의 개월수를 조회하되 입사기간이 200개월 이상인 사람만 출력하고 입사개월수는 소수점 이하 한자리까지만 버림하시오.
+SELECT FIRST_NAME, HIRE_DATE, TRUNC(MONTHS_BETWEEN(SYSDATE,HIRE_DATE),1) FROM EMPLOYEES
+WHERE TRUNC(MONTHS_BETWEEN(SYSDATE,HIRE_DATE),1) >= 200;
+
+--입사기간이 160개월 이상인 사원들의 이름, 입사일, 입사후 개월수를 출력
+SELECT FIRST_NAME, HIRE_DATE, TRUNC(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)) FROM EMPLOYEES
+WHERE TRUNC(MONTHS_BETWEEN(SYSDATE,HIRE_DATE)) >= 160;
+
+--사번이 120번인 사원이 입사후 3년 6개월이 되는날 퇴사했다. 이 사원의 사번,이름,입사일,퇴사일을 출력
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE, ADD_MONTHS(HIRE_DATE,42) FROM EMPLOYEES
+WHERE EMPLOYEE_ID = 120;
 
 
 
