@@ -451,16 +451,495 @@ ON E1.EMPLOYEE_ID = E2.MANAGER_ID;
 
 SELECT FIRST_NAME, EMPLOYEE_ID, MANAGER_ID FROM EMPLOYEES;
 
+--CROSS INNER JOIN
+--두 개 이상의 테이블에서 '모든 가능한 조합'을 만들어 결과를 반환하는 조인 방법
 
+CREATE TABLE 테이블A(
+   A_id NUMBER,
+   A_name varchar2(10)
+);
 
+CREATE TABLE 테이블B(
+   B_id NUMBER,
+   B_name varchar2(20)
+);
 
+INSERT INTO 테이블A values(1, 'John');
+INSERT INTO 테이블A values(2, 'Jane');
+INSERT INTO 테이블A values(3, 'Bob');
 
+INSERT INTO 테이블B values(101, 'Apple');
+INSERT INTO 테이블B values(102, 'Banana');
 
+SELECT * FROM 테이블A CROSS JOIN 테이블B;
+
+-- 사원 테이블과 부서 테이블의 LEFT OUTER JOIN을 이용하여 사원이 어느부서에 있는지 조회하기(이름,부서명)
+SELECT E.FIRST_NAME, D.DEPARTMENT_NAME
+FROM EMPLOYEES e LEFT OUTER JOIN DEPARTMENTS d 
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+SELECT E.FIRST_NAME, D.DEPARTMENT_NAME
+FROM EMPLOYEES E RIGHT OUTER JOIN DEPARTMENTS D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+-- FULL OUTER JOIN
+
+SELECT FIRST_NAME, DEPARTMENT_NAME
+FROM EMPLOYEES E FULL OUTER JOIN DEPARTMENTS D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+-- 부서번호, 사원명, 직업, 위치를 EMP와 DEPT 테이블을 통해 INNER JOIN하여 조회하기
+SELECT * FROM EMP; -- 직업: JOB 사원명:ENAME 부서번호:DEPTNO
+SELECT * FROM DEPT; -- 부서번호:DEPTNO 위치:LOC 부서명:DNAME
+
+SELECT E.DEPTNO, E.ENAME, E.JOB, D.LOC
+FROM EMP E INNER JOIN DEPT D
+ON E.DEPTNO = D.DEPTNO;
+
+-- PLAYER테이블, TEAM테이블에서 송종국선수가 속한 팀의 전화번호 조회하기
+-- 팀 아이디, 선수 이름, 전화번호 조회
+SELECT * FROM PLAYER
+WHERE PLAYER_NAME = '송종국'; - K06
+
+SELECT * FROM TEAM
+WHERE TEAM_ID = 'K06';
+
+SELECT P.TEAM_ID, P.PLAYER_NAME, T.TEL
+FROM PLAYER P JOIN TEAM T
+ON P.TEAM_ID = T.TEAM_ID
+AND P.PLAYER_NAME = '송종국';
+
+-- JOBS테이블과 EMPLOYEES테이블에서 
+-- 직종번호, 직종이름, 이메일, 이름과 성(연결) 별칭을 이름으로 하고 조회
+SELECT * FROM JOBS; -- JOB_ID, JOB_TITLE
+
+SELECT * FROM EMPLOYEES; -- JOB_ID, EMAIL, FIRST_NAME, LAST_NAME
+
+SELECT J.JOB_ID, J.JOB_TITLE, E.EMAIL, E.FIRST_NAME||' '||E.LAST_NAME 이름
+FROM JOBS J JOIN EMPLOYEES E
+ON J.JOB_ID = E.JOB_ID;
+
+SELECT * FROM EMP JOIN DEPT
+USING(DEPTNO);
+
+-- DEPT테이블의 LOC별 평균 SAL을 반올림한 값과, SAL의 총합을 조회해주세요
+SELECT D.LOC, ROUND(AVG(SAL)), SUM(SAL) 
+FROM DEPT D JOIN EMP E
+ON D.DEPTNO = E.DEPTNO
+GROUP BY D.LOC;
+
+SELECT * FROM DEPT;
+
+SELECT * FROM EMP; -- SAL
+
+-- VIEW의 생성
+-- OR REPLACE 옵션은 기존의 정의를 변경하는 데 사용할 수 있다.
+/*
+ * CREATE OR REPLACE VIEW 뷰이름 AS(
+ * 		쿼리문
+ * )
+ * */
+
+-- VIEW의 삭제
+-- DROP VIEW 뷰이름
+
+SELECT * FROM PLAYER;
+-- 선수의 이름과 나이를 조회
+-- EX) 홍길동 35
+
+-- PLAYER_NAME, BIRTH_DATE
+
+SELECT PLAYER_NAME, ROUND((SYSDATE-BIRTH_DATE)/365) 나이 FROM PLAYER;
+
+--VIEW 이용
+CREATE OR REPLACE VIEW PLAYER_AGE AS(
+	SELECT ROUND((SYSDATE-BIRTH_DATE)/365) AGE, P.* FROM PLAYER P
+)
+
+SELECT * FROM PLAYER_AGE;
+
+-- 30살이 넘은 선수를 조회
+SELECT * FROM PLAYER_AGE
+WHERE AGE > 30;
+
+-- 사원이름과 상사이름을 조회하기
+-- 이름과 성을 연결해서 사원은 ENAME, 상사는 MNAME
+SELECT * FROM EMPLOYEES; -- FIRST_NAME,LAST_NAME
+
+SELECT E1.FIRST_NAME||' '||E1.LAST_NAME ENAME , E2.FIRST_NAME||' '||E2.LAST_NAME MNAME
+	FROM EMPLOYEES E1 JOIN EMPLOYEES E2
+	ON E1.MANAGER_ID = E2.EMPLOYEE_ID;
+
+CREATE OR REPLACE VIEW EMPLOYEES_MANAGER AS(
+	SELECT E1.FIRST_NAME||' '||E1.LAST_NAME ENAME , E2.FIRST_NAME||' '||E2.LAST_NAME MNAME
+	FROM EMPLOYEES E1 JOIN EMPLOYEES E2
+	ON E1.MANAGER_ID = E2.EMPLOYEE_ID
+);
+
+SELECT * FROM EMPLOYEES_MANAGER;	
+
+-- King Steven의 부하직원이 몇명인지 조회하세요.
+SELECT COUNT(*) FROM EMPLOYEES_MANAGER
+WHERE MNAME = 'Steven King';
+
+-- PLAYER 테이블에 TEAM_NAME 컬럼을 추가한 VIEW 만들기
+-- VIEW 이름은 PLAYER_TEAM_NAME
+
+SELECT * FROM PLAYER;
+
+SELECT * FROM TEAM;
+
+CREATE OR REPLACE VIEW PLAYER_TEAM_NAME AS(
+	SELECT T.TEAM_NAME, P.*
+	FROM PLAYER P JOIN TEAM T
+	ON P.TEAM_ID = T.TEAM_ID
+);
+
+SELECT * FROM PLAYER_TEAM_NAME;
+
+-- TEAM_NAME이 '울산현대'인 선수들을 조회하세요
+SELECT * FROM PLAYER_TEAM_NAME
+WHERE TEAM_NAME = '울산현대';
+
+-- HOMETEAM_ID, STADIUM_NAME, TEAM_NAME을 조회
+-- HOMETEAM이 없는 경기장 이름도 나와야함
+
+SELECT * FROM TEAM; -- TEAM_NAME, STADIUM_ID
+SELECT * FROM STADIUM; -- HOMETEAM_ID, STADIUM_NAME, STADIUM_ID
+
+CREATE OR REPLACE VIEW STADIUM_INFO AS(
+	SELECT S.HOMETEAM_ID, S.STADIUM_NAME, T.TEAM_NAME
+	FROM TEAM T RIGHT OUTER JOIN STADIUM S
+	ON T.STADIUM_ID = S.STADIUM_ID
+);
+
+SELECT * FROM STADIUM_INFO;
+
+-- 홈팀이 없는 경기장 검색하기
+SELECT * FROM STADIUM_INFO
+WHERE HOMETEAM_ID IS NULL;
+
+-- 사원 테이블에서 급여, 급여를 많이 받는 순으로 순위를 조회
+-- DATA_PLUS라는 VIEW에 저장
+SELECT * FROM EMPLOYEES;
+
+CREATE OR REPLACE VIEW DATA_PLUS AS(
+	SELECT FIRST_NAME,SALARY, RANK() OVER(ORDER BY SALARY DESC) "RANK" FROM EMPLOYEES
+);
+
+SELECT * FROM DATA_PLUS;
+
+-- 1등인 사람
+SELECT * FROM DATA_PLUS dp 
+WHERE RANK = 1;
+
+-- 1~10등인 사람
+SELECT * FROM DATA_PLUS
+WHERE RANK BETWEEN 1 AND 10;
+
+-- CASE문
+-- 데이터의 값을 WHEN의 조건과 차례대로 비교한 후 일치하는 값을 찾아
+-- THEN 뒤에 있는 결과값을 반환한다.
+
+SELECT * FROM EMP;
+
+SELECT ENAME, 
+		DEPTNO,
+		CASE
+			WHEN DEPTNO = 10 THEN 'NEW YORK'
+			WHEN DEPTNO = 20 THEN 'DALLAS'
+			ELSE 'UNKNOWN'
+		END AS LOC_NAME
+FROM EMP
+WHERE JOB='MANAGER';
+
+SELECT ROUND(AVG(CASE WHEN JOB_ID = 'IT_PROG' THEN SALARY END),2) FROM EMPLOYEES;
+
+SELECT ROUND(AVG(CASE JOB_ID WHEN 'IT_PROG' THEN SALARY END),2)
+FROM EMPLOYEES;
+
+SELECT JOB_ID, CASE WHEN JOB_ID = 'IT_PROG' THEN SALARY END FROM EMPLOYEES;
+
+-- WHERE절에서의 사용
+SELECT ENAME,SAL,
+	CASE
+		WHEN SAL >= 2900 THEN '1등급'
+		WHEN SAL >= 2700 THEN '2등급'
+		WHEN SAL >= 2000 THEN '3등급'
+	END AS SAL_GRADE
+FROM EMP
+WHERE JOB = 'MANAGER' AND
+(CASE 
+	WHEN SAL >= 2900 THEN 1
+	WHEN SAL >= 2700 THEN 2
+	WHEN SAL >= 2000 THEN 3	
+END) = 1;
+
+-- EMP테이블에서 SAL이 3000이상이면 HIGH, 1000이상이면 MID, 다 아니면 LOW를 ENAME,SAL,GRADE순으로 조회
+SELECT ENAME,SAL,
+	CASE
+		WHEN SAL >= 3000 THEN 'HIGH'
+		WHEN SAL >= 1000 THEN 'MID'
+		ELSE 'LOW'
+	END AS GRADE
+FROM EMP;
+	
+DECLARE
+	V_MESSAGE VARCHAR2(100); -- 변수선언
+BEGIN
+	V_MESSAGE := 'HELLO';
+	DBMS_OUTPUT.PUT_LINE(V_MESSAGE);
+END;
+
+DECLARE
+	SALARY NUMBER := 5000;
+BEGIN
+	IF SALARY < 3000 THEN DBMS_OUTPUT.PUT_LINE('급여가 낮습니다.');
+	ELSIF SALARY BETWEEN 3000 AND 7000 THEN DBMS_OUTPUT.PUT_LINE('급여가 중간입니다.');
+	ELSE DBMS_OUTPUT.PUT_LINE('급여가 높습니다.');
+	END IF;
+END;
+
+-- SCORE 변수에 80을 대입하고 
+-- GRADE VARCHAR2(5)에 어떤 학점인지 대입하여 출력하기
+-- 90점 이상은 A, 80점 이상은 B, 70점 이상은 C, 60점 이상은 D, 그 이하는 F
+-- EX) 당신의 점수 80점, 학점 B
+DECLARE
+	SCORE NUMBER := 80;
+	GRADE VARCHAR2(5);
+BEGIN
+	IF SCORE >= 90 THEN GRADE := 'A';
+	ELSIF SCORE >= 80 THEN GRADE := 'B';
+	ELSIF SCORE >= 70 THEN GRADE := 'C';
+	ELSIF SCORE >= 60 THEN GRADE := 'D';
+	ELSE GRADE := 'F';
+	END IF;
+	DBMS_OUTPUT.PUT_LINE('당신의 점수 '||SCORE||'점,'||' 학점 '||GRADE);
+END;
+
+-- FOR문
+-- FOR 변수 IN 시작값..END값 LOOP
+-- 반복하고자 하는 명령;
+-- END LOOP;
+
+BEGIN
+	FOR I IN 1..10 LOOP
+		DBMS_OUTPUT.PUT_LINE('I의 값: '||I);
+	END LOOP;
+END;
+
+-- 1부터 10까지 
+-- X는 짝수입니다.
+-- X는 홀수입니다.
+-- 출력하기
+
+BEGIN
+	FOR X IN 1..10 LOOP
+		IF MOD(X,2)=0 THEN DBMS_OUTPUT.PUT_LINE(X||'는 짝수입니다.');
+		ELSE DBMS_OUTPUT.PUT_LINE(X||'는 홀수입니다.');
+		END IF;
+	END LOOP;
+END;
+
+-- WHILE 조건 LOOP
+-- 		반복한 문장
+-- END LOOP;
+
+-- 1부터 10까지 총합 구해서 출력
+-- EX) 총합 : XX
+
+DECLARE
+	I NUMBER := 1;
+	TOTAL NUMBER := 0;
+BEGIN
+	WHILE I <= 10 LOOP
+		TOTAL := TOTAL + I;
+		I := I + 1;
+	END LOOP;
+	DBMS_OUTPUT.PUT_LINE('총합 : '||TOTAL);
+END;
 
 --DCL
 
 --GRANT : 권한부여
 --REVOKE : 권한강탈
 
+--데이터베이스에 접근하고 객체들을 사용하도록 권한을 주고 회수하는 명령어
 
+--1) 테이블 스페이스 이름 : user_exam
+--
+--2) 데이터 파일 이름 : C:/Exam/user_exam.dbf
+--
+--3) 용량 : 10MB
+
+CREATE TABLESPACE user_exam DATAFILE 'C:/Exam/user_exam.dbf' SIZE 10M;
+
+--생성된 계정의 이름을 검색하기 위한 쿼리문을 작성하시오.
+
+SELECT USERNAME FROM DBA_USERS;
+
+--계정을 생성하는쿼리문 작성하기
+CREATE USER ID IDENTIFIED BY PASSWORD;
+
+--생성된 테이블 스페이스를 확인하기 위해서 테이블 스페이스의 목록을 조회할 수 있는 쿼리문을 작성하시오.
+SELECT * FROM TABLESPACES;
+
+--다음 조건을 만족하는 사용자를 생성하는 명령어를 작성하시오.
+--사용자 ID : joe
+--비밀번호 : black
+--기본 tablespace : hr_data01
+--temporary tablespace : temp
+CREATE USER joe IDENTIFIED BY black DEFAULT TABLESPACE hr_data01 TEMPORARY TABLESPACE temp;
+
+--릴레이션, 속성, 튜플에 대해서 설명하시오.
+-- 릴레이션 : 데이터를 표의 형태로 표현한 것
+-- 속성 : 데이터베이스를 구성하는 가장 작은 논리적 단위
+-- 튜플 : 릴레이션을 구성하는 각각의 행
+
+--테이블 이름:employees_demo
+-- 각 속성이름 및 데이터형 : employee_id NUMBER(6),
+--                           last_name VARCHAR2(25), 
+--                           phone_number VARCHAR2(20),
+--                           hire_date DATE, salary NUMBER(8,2), 
+--                           department_id NUMBER(4)이다.
+
+CREATE TABLE EMPLOYEES_DEMO(
+	EMPLOYEE_ID NUMBER(6),
+	LAST_NAME VARCHAR2(25),
+	PHONE_NUMBER VARCHAR2(20),
+	HIRE_DATE DATE,
+	SALARY NUMBER(8,2),
+	DEPARTMENT_ID NUMBER(4)
+)
+
+-- 뷰의 정의
+-- 사용자에게 접근이 허용된 자료만을 제한적으로 보여주기 위해 하나 이상의 기본 테이블로부터 유도된, 이름을 가지는 가상테이블이다.
+-- 하나 이상의 테이블이나 다른 뷰의 데이터를 볼 수 있게 하는 데이터베이스 객체이다.
+
+--뷰 이름:clerk 
+--조건: employees 테이블에서 job_id가 'PU_CLERK' 이거나 'SH_CLERK'인 자료 중 
+--컬럼이 employee_id, last_name, department_id, job_id를 select하여 만든다.
+
+CREATE OR REPLACE VIEW CLERK AS(
+	SELECT EMPLOYEE_ID, LAST_NAME, DAPARTMENT_ID, JOB_ID FROM EMPLOYEES
+	WHERE JOB_ID IN ('PU_CLERK','SH_CLERK')
+);
+
+--테이블 스페이스를 생성하시오
+--테이블 스페이스를 생성하는데 용량은 500MB로 성정하고 자동확장 기능(무한)을 사용한다.
+--테이블 스페이스 명은 custom_space 데이터 파일명은 c:custom_space.dbf 로 지정한다.
+CREATE TABLESPACE CUSTOM_SPACE DATAFILE 'c:custom_space.dbf' SIZE 500M AUTOEXTEND ON NEXT 100M MAXSIZE UNLIMITED;
+
+--사용자를 생성하고 권한을 주시오.
+--사용자 생성을 하나 하여(계정명 NAM2626) 접속 권한과 DDL 권한, 뷰 생성 권한만 주시오.
+--테이블 스페이스는 1번에서 만든걸로 지정하시오.
+CREATE USER NAM2626 IDENTIFIED BY 123456 DEFAULT TABLESPACE USER_TABLE;
+GRANT CONNECT, RESOURCE, CREATE VIEW TO NAM2626;
+
+--테이블 이름:employees_demo
+--각 속성이름 및 데이터형 : employee_id NUMBER(6),
+--                          last_name VARCHAR2(25), 
+--                          phone_number VARCHAR2(20),
+--                          hire_date DATE, salary NUMBER(8,2), 
+--                          department_id NUMBER(4)이다.
+
+
+-- 트랜잭션의 특성
+-- 원자성 : 원자와 같이 데이터베이스 연산들이 나눌수도, 줄일수 없는 하나의 유닛으로서 취급됨 / 계좌
+-- 원자성 : 트랜잭션의 연산은 모두 성공이거나 모두 실패여야한다.
+-- 일관성 : 트랜잭션 실행전의 내용이 정상이라면 실행후의 내용도 정상이어야 한다.
+-- 고립성 : 트랜잭션 실행 도중 다른 트랜잭션의 영향을 받는 것을 방지
+-- 지속성 : 트랜잭션의 결과가 성공적이라면 갱신된 내용은 영구적이어야 한다.
+
+-- TCL종류
+-- COMMIT : DML로 변경된 데이터를 데이터베이스에 적용할 때 사용
+-- ROLLBACK : DML로 변경된 데이터를 변경 이전 상태로 되돌릴 때 사용
+-- SAVEPOINT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT * FROM EMPLOYEES;
+
+SELECT * FROM DEPARTMENTS;
+
+SELECT AVG(SALARY) FROM EMPLOYEES; -- 6643.8878
+
+SELECT EMPLOYEE_ID,SALARY FROM EMPLOYEES
+WHERE SALARY > (SELECT AVG(SALARY) FROM EMPLOYEES);
+
+--employees 테이블에서 부서가 '개발팀'(DEPT_ ID: 10)인 직원들 중,
+--전체 직원의 평균 급여보다 낮은 급여를 받는 직원들의 급여를 10% 인상하시오.
+
+SELECT EMPLOYEE_ID,SALARY FROM EMPLOYEES
+WHERE SALARY < (SELECT AVG(SALARY) FROM EMPLOYEES)
+AND DEPARTMENT_ID = 10;
+
+SELECT * FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 10;
+
+UPDATE EMPLOYEES
+SET SALARY = SALARY * 1.1
+WHERE SALARY < (SELECT AVG(SALARY) FROM EMPLOYEES) AND DEPARTMENT_ID = 10;
+
+--employees 테이블에서 퇴사한 직원(퇴사일자가 존재하는 경우)의 정보를 삭제하시오.
+--테이블 구조 참고
+--employees(emp_id, name, hire_date, resign_date)
+
+SELECT EMPLOYEE_ID, FIRST_NAME, HIRE_DATE FROM EMPLOYEES;
+
+DELETE FROM EMPLOYEES
+WHERE RESIGN_DATE NOT IS NULL;
+
+ALTER TABLE 테이블명 ADD CONSTRAINT [제약조건명] [제약조건 종류](컬럼명);
+ALTER TABLE ex2_10 ADD CONSTRAINT pk_ex2_10 PRIMARY KEY(Col11);
+
+ALTER TABLE PRODUCTS ADD CONSTRAINT NUMBER > 0 (PRICE);
+
+ALTER TABLE PRODCUTS ADD CONSTRAINT NOT NULL(STOCK);
 
